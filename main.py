@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap
 
+
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
@@ -52,13 +53,13 @@ class Front_Widget(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
 
-        self.pixmap = QPixmap('VVP.PNG') # сюда надо будет занести карту
+        self.pixmap = QPixmap('VVP.PNG')  # сюда надо будет занести карту
         self.label.setPixmap(self.pixmap)
 
         self.pushButton.clicked.connect(self.shower)
 
     def shower(self):
-        self.x = self.lineEdit.text() # Эти координаты мы получаем от пользователя
+        self.x = self.lineEdit.text()  # Эти координаты мы получаем от пользователя
         self.y = self.lineEdit_3.text()
         self.size = self.lineEdit_2.text()
 
@@ -68,6 +69,7 @@ def main():
     ex = Front_Widget()
     ex.show()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()
