@@ -1,14 +1,19 @@
 import sys
+from shutil import copyfile
 
+import requests
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap
+
+from req_maps import get_map, MyBadRequest
+from config import API_KEY  # api key doesn't work
 
 
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(720, 621)
+        Form.resize(820, 500)
         self.gridLayout_2 = QtWidgets.QGridLayout(Form)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.gridLayout = QtWidgets.QGridLayout()
@@ -53,21 +58,44 @@ class Front_Widget(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
 
-        self.pixmap = QPixmap('VVP.PNG')  # сюда надо будет занести карту
+        self.pixmap = QPixmap('welcome.jpg')  # сюда надо будет занести карту
         self.label.setPixmap(self.pixmap)
 
         self.pushButton.clicked.connect(self.shower)
 
+        self.cord = '37.630481,55.772105'
+
+        self.params_maps = {
+            # 'key': API_KEY,
+            'll': self.cord,
+            'size': '550,450',
+            'l': 'map'
+        }
+
     def shower(self):
         self.x = self.lineEdit.text()  # Эти координаты мы получаем от пользователя
-        self.y = self.lineEdit_3.text()
+        self.params_maps['ll'] = self.cord = self.lineEdit_3.text().replace(' ', '')
         self.size = self.lineEdit_2.text()
+
+        try:
+            get_map(self.params_maps)
+        except requests.exceptions.ConnectionError:
+            print('Connection error')
+        else:
+            # copyfile
+            self.pixmap = QPixmap('map.png')
+            self.label.setPixmap(self.pixmap)
+
+
+def except_hook(cls, exception, traceback):
+    sys.__excepthook__(cls, exception, traceback)
 
 
 def main():
     app = QApplication(sys.argv)
     ex = Front_Widget()
     ex.show()
+    sys.excepthook = except_hook
     sys.exit(app.exec_())
 
 
