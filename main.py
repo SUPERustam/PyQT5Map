@@ -1,5 +1,4 @@
 import sys
-from shutil import copyfile
 
 import requests
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget
@@ -58,7 +57,7 @@ class Front_Widget(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
 
-        self.pixmap = QPixmap('welcome.jpg')  # сюда надо будет занести карту
+        self.pixmap = QPixmap('data/welcome.jpg')
         self.label.setPixmap(self.pixmap)
 
         self.pushButton.clicked.connect(self.shower)
@@ -69,12 +68,14 @@ class Front_Widget(QWidget, Ui_Form):
             # 'key': API_KEY,
             'll': self.cord,
             'size': '550,450',
-            'l': 'map'
+            'l': 'map',
+            'z': '8',
+            'spn': '0.005,0.005'
         }
 
     def shower(self):
         self.x = self.lineEdit.text()  # Эти координаты мы получаем от пользователя
-        self.params_maps['ll'] = self.cord = self.lineEdit_3.text().replace(' ', '')
+        self.params_maps['ll'] = self.cord = self.lineEdit_3.text().replace(' ', '').replace('%2C', ',')
         self.size = self.lineEdit_2.text()
 
         try:
@@ -82,8 +83,7 @@ class Front_Widget(QWidget, Ui_Form):
         except requests.exceptions.ConnectionError:
             print('Connection error')
         else:
-            # copyfile
-            self.pixmap = QPixmap('map.png')
+            self.pixmap = QPixmap('data/map.png')
             self.label.setPixmap(self.pixmap)
 
 

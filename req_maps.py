@@ -16,7 +16,7 @@ class MyBadRequest(requests.exceptions.ConnectionError):
 
 def get_map(params_maps):
     response = requests.get("https://static-maps.yandex.ru/1.x/", params=params_maps)
-    with open("map.png", "wb") as file:
+    with open("data/map.png", "wb") as file:
         file.write(response.content)
     if response.reason == 'Bad Request':
         raise MyBadRequest
