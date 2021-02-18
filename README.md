@@ -3,7 +3,7 @@
 ### How to run app?
 
 1. Download all [requirements](https://github.com/SUPERustam/PyQT5Map/blob/master/data/requirements.txt)
-2. Run main.py
+2. Run [main.py](https://github.com/SUPERustam/PyQT5Map/blob/master/main.py)
 
 ### License
 
