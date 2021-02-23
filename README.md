@@ -5,6 +5,9 @@
 1. Download all [requirements](https://github.com/SUPERustam/PyQT5Map/blob/master/data/requirements.txt)
 2. Run [main.py](https://github.com/SUPERustam/PyQT5Map/blob/master/main.py)
 
+### Limit values in boxes:
+Масштаб - (1.0-4.0)
+
 ### License
 
 [MIT License](https://github.com/SUPERustam/PyQT5Map/blob/master/LICENSE)
