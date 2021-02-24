@@ -176,14 +176,14 @@ class Front_Widget(QWidget, Ui_Form):
 
     def fresolution_up(self):
         x = float(self.params_maps["spn"].split(',')[0])
-        if x < 1.0:
-            self.params_maps["spn"] = f'{2 * x},{2 * x}'
+        if x > 0.0006:
+            self.params_maps["spn"] = f'{x / 2},{x / 2}'
         self.show_map()
 
     def fresolution_down(self):
         x = float(self.params_maps["spn"].split(',')[0])
-        if x > 0.0006:
-            self.params_maps["spn"] = f'{x / 2},{x / 2}'
+        if x < 1.0:
+            self.params_maps["spn"] = f'{2 * x},{2 * x}'
         self.show_map()
 
     def fmap_up(self):
@@ -232,7 +232,7 @@ class Front_Widget(QWidget, Ui_Form):
             self.address.hide()
 
     def find_business(self):  # todo:
-        search_params = {
+        local_params = {
             "apikey": API_KEY_FOR_ORGANIZATIONS,
             "lang": "ru_RU",
             "ll": self.params_maps["ll"],
@@ -241,7 +241,7 @@ class Front_Widget(QWidget, Ui_Form):
             "text": self.params_maps["ll"],
         }
         try:
-            response = requests.get("https://search-maps.yandex.ru/v1/", params=search_params)
+            response = requests.get("https://search-maps.yandex.ru/v1/", params=local_params)
             json_response = response.json()
             return json_response["features"][0] if json_response["features"] else None
         except KeyError:
@@ -277,7 +277,7 @@ class Front_Widget(QWidget, Ui_Form):
             self.pixmap = QPixmap('data/map.png')
             self.label.setPixmap(self.pixmap)
 
-    def search_words(self, post=True):
+    def search_words(self):
         try:
             local_params = {
                 'apikey': API_KEY,
