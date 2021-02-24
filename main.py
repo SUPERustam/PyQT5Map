@@ -3,7 +3,7 @@ import json
 
 import requests
 from PyQt5.QtWidgets import QApplication, QWidget, QShortcut
-from PyQt5 import QtCore, QtWidgets, Qt
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap, QKeySequence
 
 from config import API_KEY, API_KEY_FOR_ORGANIZATIONS
@@ -171,18 +171,20 @@ class Front_Widget(QWidget, Ui_Form):
             'l': 'map',  # type of map: sat/sat,skl/map
             'z': '8',  # quality of map
             'spn': '0.005,0.005',  # length of map
-            'pt': '',  # tag on map
-            'scale': 1.0  # from 1.0 to 4.0
+            'pt': ''  # tag on map
         }
 
     def fresolution_up(self):
-        if self.params_maps["scale"] < 4.0:
-            self.params_maps["scale"] += 0.1
+        x = float(self.params_maps["spn"].split(',')[0])
+        if x < 1.0:
+            self.params_maps["spn"] = f'{2 * x},{2 * x}'
+        self.show_map()
 
     def fresolution_down(self):
-        if self.params_maps["scale"] >= 1.1:
-            self.params_maps["scale"] -= 0.1
-            self.show_map()
+        x = float(self.params_maps["spn"].split(',')[0])
+        if x > 0.0006:
+            self.params_maps["spn"] = f'{x / 2},{x / 2}'
+        self.show_map()
 
     def fmap_up(self):
         temp_ll = self.params_maps['ll'].split(',')
@@ -220,7 +222,7 @@ class Front_Widget(QWidget, Ui_Form):
     def shower(self):
         self.params_maps['ll'] = ','.join([self.x.text(), self.y.text()])
         if self.size.text():
-            self.params_maps['scale'] = float(self.size.text())
+            self.params_maps['spn'] = f'{self.size.text()},{self.size.text()}'
         self.show_map()
 
     def post_change(self):
@@ -228,6 +230,36 @@ class Front_Widget(QWidget, Ui_Form):
             self.address.show()
         else:
             self.address.hide()
+
+    def find_business(self):  # todo:
+        search_params = {
+            "apikey": API_KEY_FOR_ORGANIZATIONS,
+            "lang": "ru_RU",
+            "ll": self.params_maps["ll"],
+            "spn": self.params_maps["spn"],
+            "type": "biz",
+            "text": self.params_maps["ll"],
+        }
+        try:
+            response = requests.get("https://search-maps.yandex.ru/v1/", params=search_params)
+            json_response = response.json()
+            return json_response["features"][0] if json_response["features"] else None
+        except KeyError:
+            self.ERROR.setText('Connection failed or not found')
+            self.ERROR.show()
+            self.label_6.show()
+        except IndexError:
+            self.ERROR.setText('Connection failed or not found')
+            self.ERROR.show()
+            self.label_6.show()
+        except requests.exceptions.ConnectionError:
+            self.ERROR.setText('Connection failed or not found')
+            self.ERROR.show()
+            self.label_6.show()
+        except json.decoder.JSONDecodeError:
+            self.ERROR.setText('Connection failed or not found')
+            self.ERROR.show()
+            self.label_6.show()
 
     def show_map(self):
         try:
@@ -286,11 +318,17 @@ class Front_Widget(QWidget, Ui_Form):
             self.ERROR.show()
             self.label_6.show()
         else:
-            self.ERROR.hide()
-            self.label_6.hide()
+            text = self.size.text().strip().replace(',', '.').replace(' ', '.')
+            if text:
+                if 1.0 > float(text) > 0.0006:
+                    self.params_maps['spn'] = f'{text},{text}'
+                    self.ERROR.hide()
+                    self.label_6.hide()
+                else:
+                    self.ERROR.setText('Value error')
+                    self.ERROR.show()
+                    self.label_6.show()
 
-            if self.size.text():
-                self.params_maps['scale'] = float(self.size.text())
             self.x.setText(self.params_maps['ll'].split(',')[0])
             self.y.setText(self.params_maps['ll'].split(',')[1])
             self.show_map()
