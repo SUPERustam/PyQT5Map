@@ -6,7 +6,7 @@
 2. Run [main.py](https://github.com/SUPERustam/PyQT5Map/blob/master/main.py)
 
 ### Limit values in boxes:
-Масштаб - (1.0-4.0)
+"Масштаб" from 1.0 to 4.0
 
 ### License
 

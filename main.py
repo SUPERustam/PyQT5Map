@@ -3,10 +3,10 @@ import json
 
 import requests
 from PyQt5.QtWidgets import QApplication, QWidget, QShortcut
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, Qt
 from PyQt5.QtGui import QPixmap, QKeySequence
 
-from config import API_KEY  # api key for geocoder
+from config import API_KEY, API_KEY_FOR_ORGANIZATIONS
 
 
 class Ui_Form(object):
@@ -166,7 +166,6 @@ class Front_Widget(QWidget, Ui_Form):
         self.map_up.activated.connect(self.fmap_up)
 
         self.params_maps = {
-            # 'key': API_KEY,
             'll': '',  # coordinate of center map
             'size': '550,450',
             'l': 'map',  # type of map: sat/sat,skl/map
@@ -224,6 +223,12 @@ class Front_Widget(QWidget, Ui_Form):
             self.params_maps['scale'] = float(self.size.text())
         self.show_map()
 
+    def post_change(self):
+        if self.Post_Index.currentText() == 'Включено':
+            self.address.show()
+        else:
+            self.address.hide()
+
     def show_map(self):
         try:
             response = requests.get("https://static-maps.yandex.ru/1.x/",
@@ -253,9 +258,13 @@ class Front_Widget(QWidget, Ui_Form):
                 "featureMember"][0]["GeoObject"]['Point']['pos'].replace(' ', ',')
             self.params_maps['pt'] = f'{self.params_maps["ll"]},flag'
 
-            self.address.setText(local_json_response["response"]["GeoObjectCollection"][
-                                     "featureMember"][0]["GeoObject"]["metaDataProperty"][
-                                     "GeocoderMetaData"]["Address"]["postal_code"])
+            try:
+                self.address.setText(local_json_response["response"]["GeoObjectCollection"][
+                                         "featureMember"][0]["GeoObject"]["metaDataProperty"][
+                                         "GeocoderMetaData"]["Address"]["postal_code"])
+            except KeyError:
+                pass
+
             adr = local_json_response["response"]["GeoObjectCollection"][
                 "featureMember"][0]["GeoObject"]["metaDataProperty"]["GeocoderMetaData"][
                 "Address"]["formatted"]
@@ -285,12 +294,6 @@ class Front_Widget(QWidget, Ui_Form):
             self.x.setText(self.params_maps['ll'].split(',')[0])
             self.y.setText(self.params_maps['ll'].split(',')[1])
             self.show_map()
-
-    def post_change(self):
-        if self.Post_Index.currentText() == 'Включено':
-            self.address.show()
-        else:
-            self.address.hide()
 
     def clear(self):
         self.params_maps['ll'], self.params_maps['pt'] = '', ''
